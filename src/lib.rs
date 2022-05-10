@@ -35,6 +35,7 @@ pub enum Error {
     BoundaryCrossed(usize),
     MalformedPacket,
     MalformedRemainingLength,
+    EmptySubscription,
     /// More bytes required to frame packet. Argument
     /// implies minimum additional bytes required to
     /// proceed further
