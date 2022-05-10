@@ -124,7 +124,7 @@ impl PubRecProperties {
         len
     }
 
-    pub fn extract(mut bytes: &mut Bytes) -> Result<Option<PubRecProperties>, Error> {
+    pub fn extract(bytes: &mut Bytes) -> Result<Option<PubRecProperties>, Error> {
         let mut reason_string = None;
         let mut user_properties = Vec::new();
 
@@ -137,18 +137,18 @@ impl PubRecProperties {
         let mut cursor = 0;
         // read until cursor reaches property length. properties_len = 0 will skip this loop
         while cursor < properties_len {
-            let prop = read_u8(&mut bytes)?;
+            let prop = read_u8(bytes)?;
             cursor += 1;
 
             match property(prop)? {
                 PropertyType::ReasonString => {
-                    let reason = read_mqtt_string(&mut bytes)?;
+                    let reason = read_mqtt_string(bytes)?;
                     cursor += 2 + reason.len();
                     reason_string = Some(reason);
                 }
                 PropertyType::UserProperty => {
-                    let key = read_mqtt_string(&mut bytes)?;
-                    let value = read_mqtt_string(&mut bytes)?;
+                    let key = read_mqtt_string(bytes)?;
+                    let value = read_mqtt_string(bytes)?;
                     cursor += 2 + key.len() + 2 + value.len();
                     user_properties.push((key, value));
                 }

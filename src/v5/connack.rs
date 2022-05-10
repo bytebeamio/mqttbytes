@@ -142,23 +142,23 @@ impl ConnAckProperties {
     pub fn len(&self) -> usize {
         let mut len = 0;
 
-        if let Some(_) = &self.session_expiry_interval {
+        if self.session_expiry_interval.is_some() {
             len += 1 + 4;
         }
 
-        if let Some(_) = &self.receive_max {
+        if self.receive_max.is_some() {
             len += 1 + 2;
         }
 
-        if let Some(_) = &self.max_qos {
+        if self.max_qos.is_some() {
             len += 1 + 1;
         }
 
-        if let Some(_) = &self.retain_available {
+        if self.retain_available.is_some() {
             len += 1 + 1;
         }
 
-        if let Some(_) = &self.max_packet_size {
+        if self.max_packet_size.is_some() {
             len += 1 + 4;
         }
 
@@ -166,7 +166,7 @@ impl ConnAckProperties {
             len += 1 + 2 + id.len();
         }
 
-        if let Some(_) = &self.topic_alias_max {
+        if self.topic_alias_max.is_some() {
             len += 1 + 2;
         }
 
@@ -178,19 +178,19 @@ impl ConnAckProperties {
             len += 1 + 2 + key.len() + 2 + value.len();
         }
 
-        if let Some(_) = &self.wildcard_subscription_available {
+        if self.wildcard_subscription_available.is_some() {
             len += 1 + 1;
         }
 
-        if let Some(_) = &self.subscription_identifiers_available {
+        if self.subscription_identifiers_available.is_some() {
             len += 1 + 1;
         }
 
-        if let Some(_) = &self.shared_subscription_available {
+        if self.shared_subscription_available.is_some() {
             len += 1 + 1;
         }
 
-        if let Some(_) = &self.server_keep_alive {
+        if self.server_keep_alive.is_some() {
             len += 1 + 2;
         }
 
@@ -213,7 +213,7 @@ impl ConnAckProperties {
         len
     }
 
-    pub fn extract(mut bytes: &mut Bytes) -> Result<Option<ConnAckProperties>, Error> {
+    pub fn extract(bytes: &mut Bytes) -> Result<Option<ConnAckProperties>, Error> {
         let mut session_expiry_interval = None;
         let mut receive_max = None;
         let mut max_qos = None;
@@ -241,83 +241,83 @@ impl ConnAckProperties {
         let mut cursor = 0;
         // read until cursor reaches property length. properties_len = 0 will skip this loop
         while cursor < properties_len {
-            let prop = read_u8(&mut bytes)?;
+            let prop = read_u8(bytes)?;
             cursor += 1;
 
             match property(prop)? {
                 PropertyType::SessionExpiryInterval => {
-                    session_expiry_interval = Some(read_u32(&mut bytes)?);
+                    session_expiry_interval = Some(read_u32(bytes)?);
                     cursor += 4;
                 }
                 PropertyType::ReceiveMaximum => {
-                    receive_max = Some(read_u16(&mut bytes)?);
+                    receive_max = Some(read_u16(bytes)?);
                     cursor += 2;
                 }
                 PropertyType::MaximumQos => {
-                    max_qos = Some(read_u8(&mut bytes)?);
+                    max_qos = Some(read_u8(bytes)?);
                     cursor += 1;
                 }
                 PropertyType::RetainAvailable => {
-                    retain_available = Some(read_u8(&mut bytes)?);
+                    retain_available = Some(read_u8(bytes)?);
                     cursor += 1;
                 }
                 PropertyType::AssignedClientIdentifier => {
-                    let id = read_mqtt_string(&mut bytes)?;
+                    let id = read_mqtt_string(bytes)?;
                     cursor += 2 + id.len();
                     assigned_client_identifier = Some(id);
                 }
                 PropertyType::MaximumPacketSize => {
-                    max_packet_size = Some(read_u32(&mut bytes)?);
+                    max_packet_size = Some(read_u32(bytes)?);
                     cursor += 4;
                 }
                 PropertyType::TopicAliasMaximum => {
-                    topic_alias_max = Some(read_u16(&mut bytes)?);
+                    topic_alias_max = Some(read_u16(bytes)?);
                     cursor += 2;
                 }
                 PropertyType::ReasonString => {
-                    let reason = read_mqtt_string(&mut bytes)?;
+                    let reason = read_mqtt_string(bytes)?;
                     cursor += 2 + reason.len();
                     reason_string = Some(reason);
                 }
                 PropertyType::UserProperty => {
-                    let key = read_mqtt_string(&mut bytes)?;
-                    let value = read_mqtt_string(&mut bytes)?;
+                    let key = read_mqtt_string(bytes)?;
+                    let value = read_mqtt_string(bytes)?;
                     cursor += 2 + key.len() + 2 + value.len();
                     user_properties.push((key, value));
                 }
                 PropertyType::WildcardSubscriptionAvailable => {
-                    wildcard_subscription_available = Some(read_u8(&mut bytes)?);
+                    wildcard_subscription_available = Some(read_u8(bytes)?);
                     cursor += 1;
                 }
                 PropertyType::SubscriptionIdentifierAvailable => {
-                    subscription_identifiers_available = Some(read_u8(&mut bytes)?);
+                    subscription_identifiers_available = Some(read_u8(bytes)?);
                     cursor += 1;
                 }
                 PropertyType::SharedSubscriptionAvailable => {
-                    shared_subscription_available = Some(read_u8(&mut bytes)?);
+                    shared_subscription_available = Some(read_u8(bytes)?);
                     cursor += 1;
                 }
                 PropertyType::ServerKeepAlive => {
-                    server_keep_alive = Some(read_u16(&mut bytes)?);
+                    server_keep_alive = Some(read_u16(bytes)?);
                     cursor += 2;
                 }
                 PropertyType::ResponseInformation => {
-                    let info = read_mqtt_string(&mut bytes)?;
+                    let info = read_mqtt_string(bytes)?;
                     cursor += 2 + info.len();
                     response_information = Some(info);
                 }
                 PropertyType::ServerReference => {
-                    let reference = read_mqtt_string(&mut bytes)?;
+                    let reference = read_mqtt_string(bytes)?;
                     cursor += 2 + reference.len();
                     server_reference = Some(reference);
                 }
                 PropertyType::AuthenticationMethod => {
-                    let method = read_mqtt_string(&mut bytes)?;
+                    let method = read_mqtt_string(bytes)?;
                     cursor += 2 + method.len();
                     authentication_method = Some(method);
                 }
                 PropertyType::AuthenticationData => {
-                    let data = read_mqtt_bytes(&mut bytes)?;
+                    let data = read_mqtt_bytes(bytes)?;
                     cursor += 2 + data.len();
                     authentication_data = Some(data);
                 }

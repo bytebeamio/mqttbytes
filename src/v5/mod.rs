@@ -1,3 +1,8 @@
+//! # v5
+//!
+//! This module contains the low level struct definitions required to assemble and disassemble MQTT 5 packets.
+//! The [`bytes`](https://docs.rs/bytes) crate is used internally.
+
 use crate::*;
 
 mod connack;

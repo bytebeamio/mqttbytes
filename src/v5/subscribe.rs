@@ -171,7 +171,7 @@ impl SubscribeProperties {
         len
     }
 
-    pub fn extract(mut bytes: &mut Bytes) -> Result<Option<SubscribeProperties>, Error> {
+    pub fn extract(bytes: &mut Bytes) -> Result<Option<SubscribeProperties>, Error> {
         let mut id = None;
         let mut user_properties = Vec::new();
 
@@ -185,7 +185,7 @@ impl SubscribeProperties {
         let mut cursor = 0;
         // read until cursor reaches property length. properties_len = 0 will skip this loop
         while cursor < properties_len {
-            let prop = read_u8(&mut bytes)?;
+            let prop = read_u8(bytes)?;
             cursor += 1;
 
             match property(prop)? {
@@ -197,8 +197,8 @@ impl SubscribeProperties {
                     id = Some(sub_id)
                 }
                 PropertyType::UserProperty => {
-                    let key = read_mqtt_string(&mut bytes)?;
-                    let value = read_mqtt_string(&mut bytes)?;
+                    let key = read_mqtt_string(bytes)?;
+                    let value = read_mqtt_string(bytes)?;
                     cursor += 2 + key.len() + 2 + value.len();
                     user_properties.push((key, value));
                 }

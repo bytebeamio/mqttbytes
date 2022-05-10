@@ -1,7 +1,6 @@
 extern crate alloc;
 
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use core::fmt::{self, Display, Formatter};
 use std::slice::Iter;
 
 mod topic;
@@ -11,34 +10,54 @@ pub mod v5;
 pub use topic::*;
 
 /// Error during serialization and deserialization
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
 pub enum Error {
+    #[error("Expected Connect, received: {0:?}")]
     NotConnect(PacketType),
+    #[error("Unexpected Connect")]
     UnexpectedConnect,
+    #[error("Invalid Connect return code: {0}")]
     InvalidConnectReturnCode(u8),
-    InvalidReason(u8),
+    #[error("Invalid protocol")]
     InvalidProtocol,
+    #[error("Invalid protocol level: {0}")]
     InvalidProtocolLevel(u8),
+    #[error("Incorrect packet format")]
     IncorrectPacketFormat,
+    #[error("Invalid packet type: {0}")]
     InvalidPacketType(u8),
+    #[error("Invalid property type: {0}")]
     InvalidPropertyType(u8),
-    InvalidRetainForwardRule(u8),
+    #[error("Invalid QoS level: {0}")]
     InvalidQoS(u8),
+    #[error("Invalid retain forward rule: {0}")]
+    InvalidRetainForwardRule(u8),
+    #[error("Invalid subscribe reason code: {0}")]
     InvalidSubscribeReasonCode(u8),
+    #[error("Packet id Zero")]
     PacketIdZero,
-    SubscriptionIdZero,
+    #[error("Payload size is incorrect")]
     PayloadSizeIncorrect,
+    #[error("payload is too long")]
     PayloadTooLong,
+    #[error("payload size limit exceeded: {0}")]
     PayloadSizeLimitExceeded(usize),
+    #[error("Payload required")]
     PayloadRequired,
+    #[error("Topic is not UTF-8")]
     TopicNotUtf8,
+    #[error("Promised boundary crossed: {0}")]
     BoundaryCrossed(usize),
+    #[error("Malformed packet")]
     MalformedPacket,
+    #[error("Malformed remaining length")]
     MalformedRemainingLength,
+    #[error("Subscribe packet must contain atleast one filter")]
     EmptySubscription,
     /// More bytes required to frame packet. Argument
     /// implies minimum additional bytes required to
     /// proceed further
+    #[error("At least {0} more bytes required to frame packet")]
     InsufficientBytes(usize),
 }
 
@@ -334,10 +353,4 @@ fn read_u32(stream: &mut Bytes) -> Result<u32, Error> {
     }
 
     Ok(stream.get_u32())
-}
-
-impl Display for Error {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "Error = {:?}", self)
-    }
 }
