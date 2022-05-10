@@ -142,23 +142,23 @@ impl ConnAckProperties {
     pub fn len(&self) -> usize {
         let mut len = 0;
 
-        if let Some(_) = &self.session_expiry_interval {
+        if self.session_expiry_interval.is_some() {
             len += 1 + 4;
         }
 
-        if let Some(_) = &self.receive_max {
+        if self.receive_max.is_some() {
             len += 1 + 2;
         }
 
-        if let Some(_) = &self.max_qos {
+        if self.max_qos.is_some() {
             len += 1 + 1;
         }
 
-        if let Some(_) = &self.retain_available {
+        if self.retain_available.is_some() {
             len += 1 + 1;
         }
 
-        if let Some(_) = &self.max_packet_size {
+        if self.max_packet_size.is_some() {
             len += 1 + 4;
         }
 
@@ -166,7 +166,7 @@ impl ConnAckProperties {
             len += 1 + 2 + id.len();
         }
 
-        if let Some(_) = &self.topic_alias_max {
+        if self.topic_alias_max.is_some() {
             len += 1 + 2;
         }
 
@@ -178,19 +178,19 @@ impl ConnAckProperties {
             len += 1 + 2 + key.len() + 2 + value.len();
         }
 
-        if let Some(_) = &self.wildcard_subscription_available {
+        if self.wildcard_subscription_available.is_some() {
             len += 1 + 1;
         }
 
-        if let Some(_) = &self.subscription_identifiers_available {
+        if self.subscription_identifiers_available.is_some() {
             len += 1 + 1;
         }
 
-        if let Some(_) = &self.shared_subscription_available {
+        if self.shared_subscription_available.is_some() {
             len += 1 + 1;
         }
 
-        if let Some(_) = &self.server_keep_alive {
+        if self.server_keep_alive.is_some() {
             len += 1 + 2;
         }
 
