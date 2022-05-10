@@ -180,7 +180,7 @@ impl PublishProperties {
         len
     }
 
-    fn extract(mut bytes: &mut Bytes) -> Result<Option<PublishProperties>, Error> {
+    fn extract(bytes: &mut Bytes) -> Result<Option<PublishProperties>, Error> {
         let mut payload_format_indicator = None;
         let mut message_expiry_interval = None;
         let mut topic_alias = None;
@@ -199,35 +199,35 @@ impl PublishProperties {
         let mut cursor = 0;
         // read until cursor reaches property length. properties_len = 0 will skip this loop
         while cursor < properties_len {
-            let prop = read_u8(&mut bytes)?;
+            let prop = read_u8(bytes)?;
             cursor += 1;
 
             match property(prop)? {
                 PropertyType::PayloadFormatIndicator => {
-                    payload_format_indicator = Some(read_u8(&mut bytes)?);
+                    payload_format_indicator = Some(read_u8(bytes)?);
                     cursor += 1;
                 }
                 PropertyType::MessageExpiryInterval => {
-                    message_expiry_interval = Some(read_u32(&mut bytes)?);
+                    message_expiry_interval = Some(read_u32(bytes)?);
                     cursor += 4;
                 }
                 PropertyType::TopicAlias => {
-                    topic_alias = Some(read_u16(&mut bytes)?);
+                    topic_alias = Some(read_u16(bytes)?);
                     cursor += 2;
                 }
                 PropertyType::ResponseTopic => {
-                    let topic = read_mqtt_string(&mut bytes)?;
+                    let topic = read_mqtt_string(bytes)?;
                     cursor += 2 + topic.len();
                     response_topic = Some(topic);
                 }
                 PropertyType::CorrelationData => {
-                    let data = read_mqtt_bytes(&mut bytes)?;
+                    let data = read_mqtt_bytes(bytes)?;
                     cursor += 2 + data.len();
                     correlation_data = Some(data);
                 }
                 PropertyType::UserProperty => {
-                    let key = read_mqtt_string(&mut bytes)?;
-                    let value = read_mqtt_string(&mut bytes)?;
+                    let key = read_mqtt_string(bytes)?;
+                    let value = read_mqtt_string(bytes)?;
                     cursor += 2 + key.len() + 2 + value.len();
                     user_properties.push((key, value));
                 }
@@ -238,7 +238,7 @@ impl PublishProperties {
                     subscription_identifiers.push(id);
                 }
                 PropertyType::ContentType => {
-                    let typ = read_mqtt_string(&mut bytes)?;
+                    let typ = read_mqtt_string(bytes)?;
                     cursor += 2 + typ.len();
                     content_type = Some(typ);
                 }

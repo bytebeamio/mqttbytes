@@ -166,7 +166,7 @@ impl DisconnectProperties {
         length
     }
 
-    pub fn extract(mut bytes: &mut Bytes) -> Result<Option<Self>, Error> {
+    pub fn extract(bytes: &mut Bytes) -> Result<Option<Self>, Error> {
         let (properties_len_len, properties_len) = length(bytes.iter())?;
 
         bytes.advance(properties_len_len);
@@ -184,27 +184,27 @@ impl DisconnectProperties {
 
         // read until cursor reaches property length. properties_len = 0 will skip this loop
         while cursor < properties_len {
-            let prop = read_u8(&mut bytes)?;
+            let prop = read_u8(bytes)?;
             cursor += 1;
 
             match property(prop)? {
                 PropertyType::SessionExpiryInterval => {
-                    session_expiry_interval = Some(read_u32(&mut bytes)?);
+                    session_expiry_interval = Some(read_u32(bytes)?);
                     cursor += 4;
                 }
                 PropertyType::ReasonString => {
-                    let reason = read_mqtt_string(&mut bytes)?;
+                    let reason = read_mqtt_string(bytes)?;
                     cursor += 2 + reason.len();
                     reason_string = Some(reason);
                 }
                 PropertyType::UserProperty => {
-                    let key = read_mqtt_string(&mut bytes)?;
-                    let value = read_mqtt_string(&mut bytes)?;
+                    let key = read_mqtt_string(bytes)?;
+                    let value = read_mqtt_string(bytes)?;
                     cursor += 2 + key.len() + 2 + value.len();
                     user_properties.push((key, value));
                 }
                 PropertyType::ServerReference => {
-                    let reference = read_mqtt_string(&mut bytes)?;
+                    let reference = read_mqtt_string(bytes)?;
                     cursor += 2 + reference.len();
                     server_reference = Some(reference);
                 }
