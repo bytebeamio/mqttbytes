@@ -42,6 +42,9 @@ pub enum Error {
     InsufficientBytes(usize),
 }
 
+impl std::error::Error for Error {
+}
+
 /// MQTT packet type
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
